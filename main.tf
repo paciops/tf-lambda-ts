@@ -26,9 +26,30 @@ data "aws_iam_policy_document" "assume_role" {
   }
 }
 
+data "aws_iam_policy_document" "lambda_policy_document" {
+  version = "2012-10-17"
+
+  statement {
+    actions   = ["dynamodb:PutItem", "dynamodb:UpdateItem", "dynamodb:BatchWriteItem"]
+    effect    = "Allow"
+    resources = [aws_dynamodb_table.ip_table.arn]
+  }
+}
+
+
 resource "aws_iam_role" "iam_for_lambda" {
   name               = "iam_for_lambda"
   assume_role_policy = data.aws_iam_policy_document.assume_role.json
+}
+
+resource "aws_iam_policy" "lambda_policy" {
+  name = "lambda-dynamodb-policy"
+  policy = data.aws_iam_policy_document.lambda_policy_document.json
+}
+
+resource "aws_iam_role_policy_attachment" "lambda_attachment" {
+  policy_arn = aws_iam_policy.lambda_policy.arn
+  role       = aws_iam_role.iam_for_lambda.name
 }
 
 data "archive_file" "lambda_zip_file" {
@@ -83,4 +104,14 @@ resource "aws_lambda_permission" "api_gw" {
   principal     = "apigateway.amazonaws.com"
 
   source_arn = "${aws_apigatewayv2_api.main.execution_arn}/*/*"
+}
+
+resource "aws_dynamodb_table" "ip_table" {
+  name           = "ip-table"
+  billing_mode   = "PAY_PER_REQUEST"
+  hash_key       = "id"
+  attribute {
+    name = "id"
+    type = "S"
+  }
 }
