@@ -2,3 +2,5 @@
 node_modules/*
 dist/*
 lambda.zip
+.tfstate
+*.tfstate.backup
