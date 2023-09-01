@@ -1,0 +1,1 @@
+export * from "@lib/ip-record/dynamoDB/ip-record.dynamodb"
