@@ -54,7 +54,7 @@ resource "aws_iam_role_policy_attachment" "lambda_attachment" {
 
 data "archive_file" "lambda_zip_file" {
   type        = "zip"
-  source_file = "${path.module}/dist/index.js"
+  source_dir =  "${path.module}/dist"
   output_path = "${path.module}/lambda.zip"
 }
 
